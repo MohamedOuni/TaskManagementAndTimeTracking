@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\EY.TaskShare.Api.props" />
+</Project>

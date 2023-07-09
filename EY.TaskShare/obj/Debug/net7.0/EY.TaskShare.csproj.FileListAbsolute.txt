@@ -1,0 +1,14 @@
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\bin\Debug\net7.0\EY.TaskShare.deps.json
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\bin\Debug\net7.0\EY.TaskShare.runtimeconfig.json
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\bin\Debug\net7.0\EY.TaskShare.dll
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\bin\Debug\net7.0\EY.TaskShare.pdb
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.csproj.AssemblyReference.cache
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.AssemblyInfoInputs.cache
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.AssemblyInfo.cs
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.csproj.CoreCompileInputs.cache
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.dll
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\refint\EY.TaskShare.dll
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.pdb
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\EY.TaskShare.genruntimeconfig.cache
+C:\Users\ounim\Desktop\EYTask\EY.TaskShare\EY.TaskShare\obj\Debug\net7.0\ref\EY.TaskShare.dll
