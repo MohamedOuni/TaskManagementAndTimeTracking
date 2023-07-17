@@ -12,6 +12,7 @@ namespace EY.TaskShare.Entities
         [JsonIgnore]
         public ICollection<Tasks> Tasks { get; set; } = new List<Tasks>();
         [JsonIgnore]
+
         public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

@@ -10,10 +10,10 @@ namespace EY.TaskShare.Entities
         public string Description { get; set; } = string.Empty;
         public float WorkHours { get; set; }
 
-        public DateTime CurrentDate { get; set;}
+        public DateTime CurrentDate { get; set; }
 
         [JsonIgnore]
-        public  User? User { get; set; }
+        public User? User { get; set; }
         [JsonIgnore]
         public int? UserId { get; set; }
 
@@ -21,6 +21,9 @@ namespace EY.TaskShare.Entities
         public Project? Project { get; set; }
         [JsonIgnore]
         public int? ProjectId { get; set; }
+        [JsonIgnore]
+        public List<TaskTime> TimeSpentPerWeek { get; set; } = new List<TaskTime>();
+
 
     }
 }

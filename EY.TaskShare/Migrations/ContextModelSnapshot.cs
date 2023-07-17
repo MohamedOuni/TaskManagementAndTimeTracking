@@ -42,6 +42,30 @@ namespace EY.TaskShare.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("EY.TaskShare.Entities.TaskTime", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("TimeSpent")
+                        .HasColumnType("real");
+
+                    b.Property<int>("WeekNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskTime");
+                });
+
             modelBuilder.Entity("EY.TaskShare.Entities.Tasks", b =>
                 {
                     b.Property<int>("Id")
@@ -129,11 +153,23 @@ namespace EY.TaskShare.Migrations
                     b.ToTable("ProjectUser");
                 });
 
+            modelBuilder.Entity("EY.TaskShare.Entities.TaskTime", b =>
+                {
+                    b.HasOne("EY.TaskShare.Entities.Tasks", "tasks")
+                        .WithMany("TimeSpentPerWeek")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("tasks");
+                });
+
             modelBuilder.Entity("EY.TaskShare.Entities.Tasks", b =>
                 {
                     b.HasOne("EY.TaskShare.Entities.Project", "Project")
                         .WithMany("Tasks")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("EY.TaskShare.Entities.User", "User")
                         .WithMany("Tasks")
@@ -162,6 +198,11 @@ namespace EY.TaskShare.Migrations
             modelBuilder.Entity("EY.TaskShare.Entities.Project", b =>
                 {
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("EY.TaskShare.Entities.Tasks", b =>
+                {
+                    b.Navigation("TimeSpentPerWeek");
                 });
 
             modelBuilder.Entity("EY.TaskShare.Entities.User", b =>

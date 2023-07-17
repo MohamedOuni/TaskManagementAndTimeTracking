@@ -21,12 +21,17 @@ namespace EY.TaskShare
             modelBuilder.Entity<Tasks>()
                 .HasOne(t => t.Project)
                 .WithMany(p => p.Tasks)
-                .HasForeignKey(t => t.ProjectId);
-           
+                .HasForeignKey(t => t.ProjectId).OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Tasks>()
             .HasOne(t => t.User)
             .WithMany(u => u.Tasks)
             .HasForeignKey(t => t.UserId);
+
+            modelBuilder.Entity<Tasks>()
+             .HasMany(t => t.TimeSpentPerWeek)
+             .WithOne(tt => tt.tasks)
+             .HasForeignKey(tt => tt.TaskId);
 
             modelBuilder.Entity<Project>()
               .HasMany(e => e.Users)
@@ -36,7 +41,6 @@ namespace EY.TaskShare
             l => l.HasOne(typeof(User)).WithMany().HasForeignKey("UserId").HasPrincipalKey(nameof(User.Id)),
             r => r.HasOne(typeof(Project)).WithMany().HasForeignKey("ProjectId").HasPrincipalKey(nameof(Project.Id)),
             j => j.HasKey("UserId", "ProjectId"));
-
             base.OnModelCreating(modelBuilder);
         }
     }

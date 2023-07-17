@@ -1,6 +1,6 @@
 ﻿using EY.TaskShare.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using System.Globalization;
 
 namespace EY.TaskShare.Services
 {
@@ -32,6 +32,7 @@ namespace EY.TaskShare.Services
 
             tasks.UserId = currentUser.Id;
             tasks.ProjectId = projectId;
+            tasks.CurrentDate = DateTime.UtcNow;
             dbContext.Tasks.Add(tasks);
             dbContext.SaveChanges();
         }
@@ -69,10 +70,147 @@ namespace EY.TaskShare.Services
                                                .Select(p => p.Id)
                                                .ToList();
 
-            return dbContext.Tasks.Where(t => projectIds.Contains((int)t.ProjectId)).ToList();
+            return dbContext.Tasks.Where(t => projectIds.Contains((int)t.ProjectId!)).ToList();
+        }
+        public void UpdateTask(int taskId, Tasks updatedTask, string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            var task = dbContext.Tasks.Include(t => t.TimeSpentPerWeek)
+                                      .FirstOrDefault(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException("Task not found");
+            }
+
+            if (task.UserId != currentUser.Id)
+            {
+                throw new UnauthorizedAccessException("User is not authorized to update this task");
+            }
+
+            var isoWeekNumber = GetIsoWeekNumber(DateTime.Today);
+
+            var taskTime = task.TimeSpentPerWeek.FirstOrDefault(tt => tt.WeekNumber == isoWeekNumber);
+
+            if (taskTime == null)
+            {
+                taskTime = new TaskTime
+                {
+                    WeekNumber = isoWeekNumber
+                };
+
+                task.TimeSpentPerWeek.Add(taskTime);
+            }
+
+            var timeSpentThisWeek = taskTime?.TimeSpent ?? 0;
+
+            var totalTimeSpent = timeSpentThisWeek + updatedTask.WorkHours;
+
+            task.WorkHours = totalTimeSpent;
+            taskTime!.TimeSpent = totalTimeSpent;
+
+            dbContext.SaveChanges();
         }
 
+
+        private int GetIsoWeekNumber(DateTime date)
+        {
+            var culture = CultureInfo.CurrentCulture;
+            var calendar = culture.Calendar;
+            var isoWeekNumber = calendar.GetWeekOfYear(date, culture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Monday);
+            if (isoWeekNumber == 53 && date.Month == 1)
+            {
+                isoWeekNumber = 1;
+            }
+            return isoWeekNumber;
+        }
+
+        public void DeleteTask(int taskId, string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+            var task = dbContext.Tasks.FirstOrDefault(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException("Project not found");
+            }
+
+            if (task.UserId != currentUser.Id)
+            {
+                throw new UnauthorizedAccessException("User is not authorized to update this task");
+            }
+
+            dbContext.Tasks.Remove(task);
+            dbContext.SaveChanges();
+        }
+
+        public ICollection<Tasks> GetTasksWithTimeForWeek(string authorizationHeader, int weekNumber)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+            var tasks = dbContext.Tasks.Include(t => t.TimeSpentPerWeek)
+                                       .Where(t => t.UserId == currentUser.Id)
+                                       .ToList();
+
+            foreach (var task in tasks)
+            {
+                var timeSpent = task.TimeSpentPerWeek.FirstOrDefault(tt => tt.WeekNumber == weekNumber);
+                if (timeSpent != null)
+                {
+                    task.WorkHours = timeSpent.TimeSpent;
+                }
+                else
+                {
+                    task.WorkHours = 0;
+                }
+            }
+
+            return tasks;
+        }
+
+        public string GetProjectTitleById(int projectId)
+        {
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+            return project!.Title;
+        }
+
+        public ICollection<Tasks> GetTasksWithTimeForMonth(string authorizationHeader, int year, int month)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var tasks = dbContext.Tasks.Include(t => t.TimeSpentPerWeek)
+                                       .Where(t => t.UserId == currentUser.Id)
+                                       .ToList();
+
+            foreach (var task in tasks)
+            {
+                var totalHours = task.TimeSpentPerWeek.Where(tt => tt.tasks != null && tt.WeekNumber >= GetIsoWeekNumber(startDate) && tt.WeekNumber <= GetIsoWeekNumber(endDate))
+                                                     .Select(tt => tt.TimeSpent)
+                                                     .DefaultIfEmpty(0)
+                                                     .Sum();
+
+                Console.WriteLine("read this : " + totalHours);
+                task.WorkHours = totalHours;
+            }
+
+            return tasks;
+        }
+
+
+
+
+
+
+
     }
+
 
 }
 

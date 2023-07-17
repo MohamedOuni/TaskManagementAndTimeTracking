@@ -15,7 +15,6 @@ public class AuthenticateService
     {
         this.dbContext = dbContext;
     }
-
     public void CreateUser(User user)
     {
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
@@ -23,7 +22,6 @@ public class AuthenticateService
         dbContext.Users.Add(user);
         dbContext.SaveChanges();
     }
-
     public Tuple<bool, string> LoginUser(UserDetails req)
     {
         var user = dbContext.Users.FirstOrDefault(u => u.UserName == req.UserName);
@@ -39,17 +37,16 @@ public class AuthenticateService
                 throw new UnauthorizedAccessException("Incorrect password");
             }
 
-            
+
             string token = CreateToken(user);
             return new Tuple<bool, string>(true, token.Trim());
         }
-     
+
         catch (Exception)
         {
             return new Tuple<bool, string>(false, string.Empty);
         }
     }
-
     public User ValidateTokenAndGetUser(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -77,18 +74,15 @@ public class AuthenticateService
         {
             throw new UnauthorizedAccessException("Invalid user identifier");
         }
-
         if (!int.TryParse(userId, out int userIdInt))
         {
             throw new UnauthorizedAccessException("Invalid user identifier format");
         }
-
         var userRole = claimsIdentity.FindFirst(ClaimTypes.Role)?.Value;
         if (!Enum.TryParse(userRole, out Role role))
         {
             throw new UnauthorizedAccessException("Invalid user role");
         }
-
         var userTeam = claimsIdentity.FindFirst(ClaimTypes.Name)?.Value;
         if (!Enum.TryParse(userTeam, out Team team))
         {
@@ -99,12 +93,11 @@ public class AuthenticateService
 
         if (user == null)
         {
-            throw new UnauthorizedAccessException("User not found or unauthorized role");
+            throw new UnauthorizedAccessException("User not found or unauthorized role or unauthorized team");
         }
 
         return user;
     }
-
     private string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim>

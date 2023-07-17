@@ -23,7 +23,8 @@ namespace EY.TaskShare.Api.Controllers
             try
             {
                 var authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
-                _projectService.CreateProject(project, authorizationHeader);
+                _projectService.CreateProject(project,
+                                              authorizationHeader!);
                 return Ok(new { message = "Project created successfully", project });
             }
             catch (UnauthorizedAccessException ex)
@@ -42,7 +43,8 @@ namespace EY.TaskShare.Api.Controllers
             try
             {
                 var authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
-                _projectService.DeleteProject(projectId, authorizationHeader);
+                _projectService.DeleteProject(projectId,
+                                              authorizationHeader!);
                 return NoContent();
             }
             catch (UnauthorizedAccessException ex)
@@ -64,7 +66,9 @@ namespace EY.TaskShare.Api.Controllers
         {
             try
             {
-                _projectService.UpdateProject(projectId, updatedProject, Request.Headers["Authorization"]);
+                _projectService.UpdateProject(projectId,
+                                              updatedProject,
+                                              Request.Headers["Authorization"]!);
                 return Ok("Project updated successfully");
             }
             catch (UnauthorizedAccessException ex)
@@ -76,14 +80,14 @@ namespace EY.TaskShare.Api.Controllers
                 return NotFound(ex.Message);
             }
         }
-       
+
         [HttpGet("projectsForUser")]
         public IActionResult GetProjectsForUser()
         {
             try
             {
                 var authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
-                var projects = _projectService.GetProjectsForUser(authorizationHeader);
+                var projects = _projectService.GetProjectsForUser(authorizationHeader!);
                 return Ok(projects);
             }
             catch (UnauthorizedAccessException ex)
@@ -100,7 +104,7 @@ namespace EY.TaskShare.Api.Controllers
         public ActionResult<List<Project>> GetProjectsForTeam()
         {
             var authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
-            var projects = _projectService.GetProjectsForTeam(authorizationHeader);
+            var projects = _projectService.GetProjectsForTeam(authorizationHeader!);
 
             return projects;
         }
