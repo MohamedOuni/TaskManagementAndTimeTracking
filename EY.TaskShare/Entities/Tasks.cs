@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace EY.TaskShare.Entities
@@ -23,6 +24,12 @@ namespace EY.TaskShare.Entities
         public int? ProjectId { get; set; }
         [JsonIgnore]
         public List<TaskTime> TimeSpentPerWeek { get; set; } = new List<TaskTime>();
+
+        [NotMapped]
+        public string ProjectName { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string UserName { get; set; } = string.Empty;
 
 
     }

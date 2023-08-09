@@ -36,8 +36,6 @@ public class AuthenticateService
             {
                 throw new UnauthorizedAccessException("Incorrect password");
             }
-
-
             string token = CreateToken(user);
             return new Tuple<bool, string>(true, token.Trim());
         }

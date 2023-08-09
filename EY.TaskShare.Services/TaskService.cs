@@ -161,11 +161,15 @@ namespace EY.TaskShare.Services
                 if (timeSpent != null)
                 {
                     task.WorkHours = timeSpent.TimeSpent;
+
+
                 }
                 else
                 {
                     task.WorkHours = 0;
                 }
+                task.ProjectName = GetProjectTitleById((int)task.ProjectId);
+
             }
 
             return tasks;
@@ -183,32 +187,6 @@ namespace EY.TaskShare.Services
             return user!.UserName;
         }
 
-        public ICollection<Tasks> GetTasksWithTimeForMonth(string authorizationHeader, int year, int month)
-        {
-            var token = authorizationHeader.Substring(7);
-            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
-
-            var startDate = new DateTime(year, month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-
-            var tasks = dbContext.Tasks.Include(t => t.TimeSpentPerWeek)
-                                       .Where(t => t.UserId == currentUser.Id)
-                                       .ToList();
-
-            foreach (var task in tasks)
-            {
-                var totalHours = task.TimeSpentPerWeek.Where(tt => tt.tasks != null && tt.WeekNumber >= GetIsoWeekNumber(startDate) && tt.WeekNumber <= GetIsoWeekNumber(endDate))
-                                                     .Select(tt => tt.TimeSpent)
-                                                     .DefaultIfEmpty(0)
-                                                     .Sum();
-
-                Console.WriteLine("read this : " + totalHours);
-                task.WorkHours = totalHours;
-            }
-
-            return tasks;
-        }
-
         public ICollection<Tasks> GetTasksWithTimeForMonthSupervisor(string authorizationHeader, int year, int month)
         {
             var token = authorizationHeader.Substring(7);
@@ -216,7 +194,7 @@ namespace EY.TaskShare.Services
 
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-           
+
             var projectIds = dbContext.Projects.Where(p => p.Users.Any(u => u.Id == currentUser.Id))
                                               .Select(p => p.Id)
                                               .ToList();
@@ -225,6 +203,7 @@ namespace EY.TaskShare.Services
                                        .Where(t => projectIds.Contains((int)t.ProjectId!))
                                        .ToList();
 
+
             foreach (var task in tasks)
             {
                 var totalHours = task.TimeSpentPerWeek.Where(tt => tt.tasks != null && tt.WeekNumber >= GetIsoWeekNumber(startDate) && tt.WeekNumber <= GetIsoWeekNumber(endDate))
@@ -232,12 +211,16 @@ namespace EY.TaskShare.Services
                                                      .DefaultIfEmpty(0)
                                                      .Sum();
 
-                Console.WriteLine("read this : " + totalHours);
                 task.WorkHours = totalHours;
+
+                task.ProjectName = GetProjectTitleById((int)task.ProjectId!);
+
+                task.UserName = GetUserNameById((int)task.UserId!);
             }
 
             return tasks;
         }
+
 
     }
 
