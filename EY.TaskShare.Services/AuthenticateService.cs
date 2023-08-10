@@ -1,7 +1,6 @@
 ﻿using EY.TaskShare;
 using EY.TaskShare.Entities;
 using EY.TaskShare.Services.Model;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

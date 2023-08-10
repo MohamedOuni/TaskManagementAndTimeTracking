@@ -168,7 +168,7 @@ namespace EY.TaskShare.Services
                 {
                     task.WorkHours = 0;
                 }
-                task.ProjectName = GetProjectTitleById((int)task.ProjectId);
+                task.ProjectName = GetProjectTitleById((int)task.ProjectId!);
 
             }
 
@@ -221,6 +221,109 @@ namespace EY.TaskShare.Services
             return tasks;
         }
 
+
+        public Dictionary<string, decimal> GetUserWorkHoursStats(string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            if (currentUser.Role != Role.Supervisor)
+            {
+                throw new UnauthorizedAccessException("Only supervisors can access this information.");
+            }
+
+            var userStats = dbContext.Users.Include(u => u.Tasks)
+                                           .Where(u => u.Team == currentUser.Team)
+                                           .Select(u => new
+                                           {
+                                               UserName = u.UserName,
+                                               TotalWorkHours = u.Tasks.Sum(t => t.WorkHours)
+                                           })
+                                           .OrderByDescending(u => u.TotalWorkHours)
+                                           .ToDictionary(u => u.UserName, u => (decimal)u.TotalWorkHours);
+
+            return userStats;
+        }
+
+        public User GetUserWithMostWorkedHours(string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            if (currentUser.Role != Role.Supervisor)
+            {
+                throw new UnauthorizedAccessException("Only supervisors can access this information.");
+            }
+
+            var projectIds = dbContext.Projects.Where(p => p.Users.Any(u => u.Id == currentUser.Id))
+                                               .Select(p => p.Id)
+                                               .ToList();
+
+            var usersWorkHours = dbContext.Tasks.Where(t => projectIds.Contains((int)t.ProjectId!))
+                                                .GroupBy(t => t.UserId)
+                                                .Select(g => new
+                                                {
+                                                    UserId = g.Key.Value,
+                                                    TotalWorkHours = g.Sum(t => t.WorkHours)
+                                                })
+                                                .OrderByDescending(g => g.TotalWorkHours)
+                                                .FirstOrDefault();
+
+            if (usersWorkHours == null)
+            {
+                throw new InvalidOperationException("No user found with worked hours.");
+            }
+
+            var userWithMostWorkedHours = dbContext.Users.FirstOrDefault(u => u.Id == usersWorkHours.UserId);
+            return userWithMostWorkedHours!;
+        }
+
+        public Project GetProjectWithMostWorkedTime(string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            if (currentUser.Role != Role.Supervisor)
+            {
+                throw new UnauthorizedAccessException("Only supervisors can access this information.");
+            }
+
+            var projectWithMostWorkedTime = dbContext.Projects
+                .Where(p => p.Users.Any(u => u.Id == currentUser.Id))
+                .OrderByDescending(p => p.Tasks.Sum(t => t.WorkHours))
+                .FirstOrDefault();
+
+            if (projectWithMostWorkedTime == null)
+            {
+                throw new InvalidOperationException("No project found with worked time.");
+            }
+
+            return projectWithMostWorkedTime;
+        }
+
+
+        public Dictionary<string, decimal> GetProjectWorkHoursStats(string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring(7);
+            var currentUser = authenticateService.ValidateTokenAndGetUser(token);
+
+            if (currentUser.Role != Role.Supervisor)
+            {
+                throw new UnauthorizedAccessException("Only supervisors can access this information.");
+            }
+
+            var projectStats = dbContext.Projects.Include(p => p.Tasks)
+                                                .Where(p => p.Users.Any(u => u.Id == currentUser.Id))
+                                                .Select(p => new
+                                                {
+                                                    ProjectTitle = p.Title,
+                                                    TotalWorkHours = p.Tasks.Sum(t => t.WorkHours)
+                                                })
+                                                .OrderByDescending(p => p.TotalWorkHours)
+                                                .ToDictionary(p => p.ProjectTitle, p => (decimal)p.TotalWorkHours);
+
+            return projectStats;
+        }
 
     }
 

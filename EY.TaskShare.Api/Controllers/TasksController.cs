@@ -328,7 +328,7 @@ namespace EY.TaskShare.Api.Controllers
             try
             {
                 string authorizationHeader = Request.Headers["Authorization"].ToString();
-                var tasksWithTimeForMonth = _taskService.GetTasksWithTimeForMonthSupervisor(authorizationHeader,year,month);
+                var tasksWithTimeForMonth = _taskService.GetTasksWithTimeForMonthSupervisor(authorizationHeader, year, month);
 
                 if (tasksWithTimeForMonth.Count == 0)
                 {
@@ -350,7 +350,89 @@ namespace EY.TaskShare.Api.Controllers
             }
         }
 
+        [HttpGet("most-worked-user")]
+        public IActionResult GetMostWorkedUser()
+        {
+            try
+            {
+                string authorizationHeader = Request.Headers["Authorization"].ToString();
+                var userWithMostWorkedHours = _taskService.GetUserWithMostWorkedHours(authorizationHeader);
+                return Ok(userWithMostWorkedHours);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while fetching most worked user data.");
+            }
+        }
 
+        [HttpGet("user-stats")]
+        public IActionResult GetUserStats()
+        {
+            try
+            {
+                string authorizationHeader = Request.Headers["Authorization"].ToString();
+                var userStats = _taskService.GetUserWorkHoursStats(authorizationHeader);
+                return Ok(userStats);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while fetching user stats.");
+            }
+        }
+
+        [HttpGet("project-stats")]
+        public IActionResult GetProjectStats()
+        {
+            try
+            {
+                string authorizationHeader = Request.Headers["Authorization"].ToString();
+                var projectStats = _taskService.GetProjectWorkHoursStats(authorizationHeader);
+                return Ok(projectStats);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while fetching project stats.");
+            }
+        }
+
+        [HttpGet("most-worked-project")]
+        public IActionResult GetProjectWithMostWorkedTime()
+        {
+            try
+            {
+                string authorizationHeader = Request.Headers["Authorization"].ToString();
+                var projectWithMostWorkedTime = _taskService.GetProjectWithMostWorkedTime(authorizationHeader);
+                return Ok(projectWithMostWorkedTime);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while fetching most worked project data.");
+            }
+        }
     }
 }
 

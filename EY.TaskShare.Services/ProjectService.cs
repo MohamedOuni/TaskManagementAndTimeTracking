@@ -1,7 +1,6 @@
 ﻿using EY.TaskShare;
 using EY.TaskShare.Entities;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class ProjectService
 {
